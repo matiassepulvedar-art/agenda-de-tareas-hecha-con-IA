@@ -11,12 +11,37 @@ export default function TodoEditForm({
 }) {
   return (
     <form onSubmit={onSubmit} className="edit-form">
-      <Input value={title} onChange={onTitleChange} required />
-      <Input value={description} onChange={onDescriptionChange} />
-      <Button type="submit">Guardar</Button>
-      <Button type="button" onClick={onCancel}>
-        Cancelar
-      </Button>
+      <div>
+        <label className="field-label" htmlFor="edit-title">
+          Tarea
+        </label>
+        <Input
+          id="edit-title"
+          className="field"
+          value={title}
+          onChange={onTitleChange}
+          required
+        />
+      </div>
+      <div>
+        <label className="field-label" htmlFor="edit-description">
+          Nota
+        </label>
+        <Input
+          id="edit-description"
+          className="field"
+          value={description}
+          onChange={onDescriptionChange}
+        />
+      </div>
+      <div className="edit-actions">
+        <Button type="submit" className="btn btn--primary">
+          Guardar
+        </Button>
+        <Button type="button" className="btn btn--ghost" onClick={onCancel}>
+          Cancelar
+        </Button>
+      </div>
     </form>
   )
 }

@@ -5,6 +5,7 @@ export default function Input({
   value,
   onChange,
   required,
+  ...rest
 }) {
   return (
     <input
@@ -14,6 +15,7 @@ export default function Input({
       value={value}
       onChange={onChange}
       required={required}
+      {...rest}
     />
   )
 }

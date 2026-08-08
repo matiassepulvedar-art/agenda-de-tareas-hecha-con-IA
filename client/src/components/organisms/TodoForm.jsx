@@ -1,6 +1,22 @@
 import Input from '../atoms/Input'
 import Button from '../atoms/Button'
 
+const PlusIcon = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </svg>
+)
+
 export default function TodoForm({
   title,
   description,
@@ -10,20 +26,36 @@ export default function TodoForm({
 }) {
   return (
     <form onSubmit={onSubmit} className="todo-form">
-      <Input
-        type="text"
-        placeholder="Título (requerido)"
-        value={title}
-        onChange={onTitleChange}
-        required
-      />
-      <Input
-        type="text"
-        placeholder="Descripción (opcional)"
-        value={description}
-        onChange={onDescriptionChange}
-      />
-      <Button type="submit">Agregar</Button>
+      <div>
+        <label className="field-label" htmlFor="todo-title">
+          Tarea
+        </label>
+        <Input
+          id="todo-title"
+          type="text"
+          placeholder="¿Qué hay que hacer?"
+          value={title}
+          onChange={onTitleChange}
+          required
+          className="field"
+        />
+      </div>
+      <div>
+        <label className="field-label" htmlFor="todo-description">
+          Nota (opcional)
+        </label>
+        <Input
+          id="todo-description"
+          type="text"
+          placeholder="Un detalle más..."
+          value={description}
+          onChange={onDescriptionChange}
+          className="field"
+        />
+      </div>
+      <Button type="submit" className="btn btn--primary btn--block">
+        {PlusIcon} Agregar tarea
+      </Button>
     </form>
   )
 }

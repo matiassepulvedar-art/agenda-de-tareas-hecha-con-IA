@@ -4,6 +4,40 @@ import Text from '../atoms/Text'
 import Button from '../atoms/Button'
 import TodoEditForm from './TodoEditForm'
 
+const PencilIcon = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+  </svg>
+)
+
+const TrashIcon = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+)
+
 export default function TodoItem({
   todo,
   editing,
@@ -17,11 +51,9 @@ export default function TodoItem({
   onSave,
   onCancel,
 }) {
-  const className = todo.completed ? 'completed' : ''
-
   if (editing) {
     return (
-      <li className={className}>
+      <li className="todo todo--editing">
         <TodoEditForm
           title={editTitle}
           description={editDescription}
@@ -34,21 +66,31 @@ export default function TodoItem({
     )
   }
 
+  const className = todo.completed ? 'todo todo--done' : 'todo'
+
   return (
     <li className={className}>
-      <Label>
-        <Checkbox checked={todo.completed} onChange={onToggle} />
-        <div>
-          <Text className="title">{todo.title}</Text>
-          {todo.description && <Text className="description">{todo.description}</Text>}
-        </div>
+      <Label className="todo-toggle">
+        <Checkbox className="checkbox" checked={todo.completed} onChange={onToggle} />
+        <span className="todo-text">
+          <Text className="todo-title">{todo.title}</Text>
+          {todo.description && (
+            <Text className="todo-description">{todo.description}</Text>
+          )}
+        </span>
       </Label>
-      <Button className="edit" onClick={onEdit}>
-        Editar
-      </Button>
-      <Button className="delete" onClick={onDelete}>
-        Eliminar
-      </Button>
+      <div className="todo-actions">
+        <Button className="icon-btn" onClick={onEdit} aria-label="Editar">
+          {PencilIcon}
+        </Button>
+        <Button
+          className="icon-btn icon-btn--danger"
+          onClick={onDelete}
+          aria-label="Eliminar"
+        >
+          {TrashIcon}
+        </Button>
+      </div>
     </li>
   )
 }
