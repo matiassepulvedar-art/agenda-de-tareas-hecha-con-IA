@@ -1,3 +1,7 @@
-export default function Message({ className = '', children }) {
-  return <p className={className}>{children}</p>
+export default function Message({ className = '', role, children }) {
+  return (
+    <p className={className} role={role}>
+      {children}
+    </p>
+  )
 }

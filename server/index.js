@@ -1,3 +1,5 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import itemsRouter from './routes/items.js'
@@ -27,6 +29,14 @@ app.delete('/api/todos/:id', deleteTodo)
 
 app.get('/api/health', (req, res) => {
   res.send('Servidor corriendo')
+})
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const clientDist = path.resolve(__dirname, '../client/dist')
+
+app.use(express.static(clientDist))
+app.get(/^\/(?!api).*/, (_req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'))
 })
 
 app.listen(PORT, () => {

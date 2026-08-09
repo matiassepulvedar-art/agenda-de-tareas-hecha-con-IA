@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import Checkbox from '../atoms/Checkbox'
 import Label from '../atoms/Label'
 import Text from '../atoms/Text'
@@ -51,6 +52,16 @@ export default function TodoItem({
   onSave,
   onCancel,
 }) {
+  const editBtnRef = useRef(null)
+  const wasEditing = useRef(false)
+
+  useEffect(() => {
+    if (wasEditing.current && !editing) {
+      editBtnRef.current?.focus()
+    }
+    wasEditing.current = editing
+  }, [editing])
+
   if (editing) {
     return (
       <li className="todo todo--editing">
@@ -80,7 +91,12 @@ export default function TodoItem({
         </span>
       </Label>
       <div className="todo-actions">
-        <Button className="icon-btn" onClick={onEdit} aria-label="Editar">
+        <Button
+          className="icon-btn"
+          onClick={onEdit}
+          aria-label="Editar"
+          ref={editBtnRef}
+        >
           {PencilIcon}
         </Button>
         <Button

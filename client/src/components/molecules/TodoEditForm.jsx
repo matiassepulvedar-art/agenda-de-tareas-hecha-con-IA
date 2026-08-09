@@ -21,6 +21,7 @@ export default function TodoEditForm({
           value={title}
           onChange={onTitleChange}
           required
+          autoFocus
         />
       </div>
       <div>
