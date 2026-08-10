@@ -1,6 +1,7 @@
 import Heading from '../atoms/Heading'
 import Message from '../atoms/Message'
 import Button from '../atoms/Button'
+import Skeleton from '../atoms/Skeleton'
 import SearchBar from '../molecules/SearchBar'
 import AppNav from '../organisms/AppNav'
 import TodoForm from '../organisms/TodoForm'
@@ -23,6 +24,7 @@ export default function TodoAppTemplate({
   onRetry,
   notice = '',
   stats,
+  togglingIds = new Set(),
   title,
   description,
   onTitleChange,
@@ -106,11 +108,7 @@ export default function TodoAppTemplate({
       )}
 
       {loading && todos.length === 0 ? (
-        <div className="skeleton-list" aria-hidden="true">
-          <div className="skeleton-card" />
-          <div className="skeleton-card" />
-          <div className="skeleton-card" />
-        </div>
+        <Skeleton count={3} />
       ) : (
         <>
           <div className="list-toolbar">
@@ -147,6 +145,7 @@ export default function TodoAppTemplate({
           ) : (
             <TodoList
               todos={todos}
+              togglingIds={togglingIds}
               editingId={editingId}
               editTitle={editTitle}
               editDescription={editDescription}

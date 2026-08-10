@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deleteTodo, fetchTodo, setTodoCompleted } from '../../api/client'
 import Button from '../atoms/Button'
@@ -6,6 +6,7 @@ import Checkbox from '../atoms/Checkbox'
 import Heading from '../atoms/Heading'
 import Label from '../atoms/Label'
 import Message from '../atoms/Message'
+import Skeleton from '../atoms/Skeleton'
 import Text from '../atoms/Text'
 
 export default function TodoDetailPage() {
@@ -14,32 +15,46 @@ export default function TodoDetailPage() {
   const [todo, setTodo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const requestSeq = useRef(0)
 
-  async function load() {
+  const load = useCallback(async () => {
+    const seq = ++requestSeq.current
     try {
       setLoading(true)
       setError('')
-      setTodo(await fetchTodo(id))
+      const data = await fetchTodo(id)
+      if (seq === requestSeq.current) setTodo(data)
     } catch (err) {
-      setError(err.message)
+      if (seq === requestSeq.current) setError(err.message)
     } finally {
-      setLoading(false)
+      if (seq === requestSeq.current) setLoading(false)
     }
-  }
+  }, [id])
 
   useEffect(() => {
     load()
-  }, [id])
+  }, [load])
 
   async function handleToggle() {
+    if (!todo || saving) return
+    const nextCompleted = !todo.completed
+    const previous = todo
+    setSaving(true)
+    setTodo({ ...todo, completed: nextCompleted })
     try {
-      setTodo(await setTodoCompleted(id, !todo.completed))
+      setTodo(await setTodoCompleted(todo.id, nextCompleted))
     } catch (err) {
+      setTodo(previous)
       setError(err.message)
+    } finally {
+      setSaving(false)
     }
   }
 
   async function handleDelete() {
+    if (!todo) return
+    if (!window.confirm(`¿Eliminar la tarea «${todo.title}»?`)) return
     try {
       await deleteTodo(id)
       navigate('/')
@@ -54,11 +69,7 @@ export default function TodoDetailPage() {
         <Link to="/" className="btn btn--ghost">
           ← Volver
         </Link>
-        <div className="skeleton-list" aria-hidden="true">
-          <div className="skeleton-card" />
-          <div className="skeleton-card" />
-          <div className="skeleton-card" />
-        </div>
+        <Skeleton count={3} />
       </main>
     )
   }
@@ -95,7 +106,7 @@ export default function TodoDetailPage() {
 
       <div className="detail-actions">
         <Label className="detail-toggle">
-          <Checkbox className="checkbox" checked={todo.completed} onChange={handleToggle} />
+          <Checkbox className="checkbox" checked={todo.completed} onChange={handleToggle} disabled={saving} />
           <Text>Completada</Text>
         </Label>
         <Button className="btn btn--danger" onClick={handleDelete}>

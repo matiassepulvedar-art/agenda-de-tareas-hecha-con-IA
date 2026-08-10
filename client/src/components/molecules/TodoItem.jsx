@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import Checkbox from '../atoms/Checkbox'
-import Label from '../atoms/Label'
 import Text from '../atoms/Text'
 import Button from '../atoms/Button'
 import TodoEditForm from './TodoEditForm'
@@ -41,6 +41,7 @@ const TrashIcon = (
 
 export default function TodoItem({
   todo,
+  toggling = false,
   editing,
   editTitle,
   editDescription,
@@ -81,15 +82,23 @@ export default function TodoItem({
 
   return (
     <li className={className}>
-      <Label className="todo-toggle">
-        <Checkbox className="checkbox" checked={todo.completed} onChange={onToggle} />
+      <div className="todo-toggle">
+        <Checkbox
+          className="checkbox"
+          checked={todo.completed}
+          onChange={onToggle}
+          disabled={toggling}
+          aria-label={todo.completed ? 'Marcar como pendiente' : 'Marcar como completada'}
+        />
         <span className="todo-text">
-          <Text className="todo-title">{todo.title}</Text>
+          <Link className="todo-title" to={`/todos/${todo.id}`}>
+            {todo.title}
+          </Link>
           {todo.description && (
             <Text className="todo-description">{todo.description}</Text>
           )}
         </span>
-      </Label>
+      </div>
       <div className="todo-actions">
         <Button
           className="icon-btn"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   fetchTodos,
@@ -22,38 +22,33 @@ export default function TodosPage({ filter = 'all' }) {
   const [editingId, setEditingId] = useState(null)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [togglingIds, setTogglingIds] = useState(() => new Set())
   const noticeTimer = useRef(null)
+  const requestSeq = useRef(0)
+
+  const loadTodos = useCallback(async (showLoading = false) => {
+    const seq = ++requestSeq.current
+    try {
+      if (showLoading) setLoading(true)
+      setError('')
+      const data = await fetchTodos()
+      if (seq === requestSeq.current) setTodos(data)
+    } catch (err) {
+      if (seq === requestSeq.current) setError(err.message)
+    } finally {
+      if (showLoading && seq === requestSeq.current) setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    load()
-  }, [])
+    loadTodos(true)
+  }, [loadTodos])
 
   useEffect(() => {
     return () => {
       if (noticeTimer.current) clearTimeout(noticeTimer.current)
     }
   }, [])
-
-  async function load() {
-    try {
-      setLoading(true)
-      setError('')
-      setTodos(await fetchTodos())
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function refresh() {
-    try {
-      setError('')
-      setTodos(await fetchTodos())
-    } catch (err) {
-      setError(err.message)
-    }
-  }
 
   function showNotice(message) {
     if (noticeTimer.current) clearTimeout(noticeTimer.current)
@@ -68,10 +63,10 @@ export default function TodosPage({ filter = 'all' }) {
   async function handleAdd(event) {
     event.preventDefault()
     try {
-      await createTodo(title, description)
+      const created = await createTodo(title, description)
+      setTodos((prev) => [...prev, created])
       setTitle('')
       setDescription('')
-      await refresh()
       showNotice('Tarea creada')
     } catch (err) {
       setError(err.message)
@@ -79,19 +74,41 @@ export default function TodosPage({ filter = 'all' }) {
   }
 
   async function handleToggle(todo) {
+    const nextCompleted = !todo.completed
+    setTogglingIds((prev) => new Set(prev).add(todo.id))
+    setTodos((prev) =>
+      prev.map((t) => (t.id === todo.id ? { ...t, completed: nextCompleted } : t)),
+    )
     try {
-      await setTodoCompleted(todo.id, !todo.completed)
-      await refresh()
+      const updated = await setTodoCompleted(todo.id, nextCompleted)
+      setTodos((prev) =>
+        prev.map((t) => (t.id === todo.id ? { ...t, completed: updated.completed } : t)),
+      )
     } catch (err) {
+      setTodos((prev) =>
+        prev.map((t) => (t.id === todo.id ? { ...t, completed: todo.completed } : t)),
+      )
       setError(err.message)
+    } finally {
+      setTogglingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(todo.id)
+        return next
+      })
     }
   }
 
   async function handleDelete(id) {
+    const target = todos.find((t) => t.id === id)
+    if (!target) return
+    if (!window.confirm(`¿Eliminar la tarea «${target.title}»?`)) return
+    const previous = todos
+    setTodos((prev) => prev.filter((t) => t.id !== id))
     try {
       await deleteTodo(id)
-      await refresh()
+      showNotice('Tarea eliminada')
     } catch (err) {
+      setTodos(previous)
       setError(err.message)
     }
   }
@@ -104,14 +121,18 @@ export default function TodosPage({ filter = 'all' }) {
 
   async function handleSaveEdit(event) {
     event.preventDefault()
+    const previous = todos
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === editingId ? { ...t, title: editTitle, description: editDescription } : t,
+      ),
+    )
+    setEditingId(null)
     try {
-      await updateTodo(editingId, {
-        title: editTitle,
-        description: editDescription,
-      })
-      setEditingId(null)
-      await refresh()
+      await updateTodo(editingId, { title: editTitle, description: editDescription })
+      showNotice('Tarea guardada')
     } catch (err) {
+      setTodos(previous)
       setError(err.message)
     }
   }
@@ -141,10 +162,11 @@ export default function TodosPage({ filter = 'all' }) {
       filter={filter}
       query={q}
       loading={loading}
-      onRetry={load}
+      onRetry={() => loadTodos(true)}
       notice={notice}
       stats={{ total, done, pending, pct }}
       todos={visibleTodos}
+      togglingIds={togglingIds}
       title={title}
       description={description}
       onTitleChange={(event) => setTitle(event.target.value)}

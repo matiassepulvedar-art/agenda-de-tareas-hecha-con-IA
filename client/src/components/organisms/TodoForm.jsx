@@ -1,5 +1,6 @@
 import Input from '../atoms/Input'
 import Button from '../atoms/Button'
+import Label from '../atoms/Label'
 
 const PlusIcon = (
   <svg
@@ -27,9 +28,9 @@ export default function TodoForm({
   return (
     <form onSubmit={onSubmit} className="todo-form">
       <div>
-        <label className="field-label" htmlFor="todo-title">
+        <Label className="field-label" htmlFor="todo-title">
           Tarea
-        </label>
+        </Label>
         <Input
           id="todo-title"
           type="text"
@@ -41,9 +42,9 @@ export default function TodoForm({
         />
       </div>
       <div>
-        <label className="field-label" htmlFor="todo-description">
+        <Label className="field-label" htmlFor="todo-description">
           Nota (opcional)
-        </label>
+        </Label>
         <Input
           id="todo-description"
           type="text"

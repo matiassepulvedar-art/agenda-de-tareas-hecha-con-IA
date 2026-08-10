@@ -1,7 +1,9 @@
+import Heading from '../atoms/Heading'
 import TodoItem from '../molecules/TodoItem'
 
 export default function TodoList({
   todos,
+  togglingIds = new Set(),
   editingId,
   editTitle,
   editDescription,
@@ -21,6 +23,7 @@ export default function TodoList({
       <TodoItem
         key={todo.id}
         todo={todo}
+        toggling={togglingIds.has(todo.id)}
         editing={editingId === todo.id}
         editTitle={editTitle}
         editDescription={editDescription}
@@ -39,17 +42,17 @@ export default function TodoList({
     <div className="todo-groups">
       {pending.length > 0 && (
         <section className="todo-group" aria-label="Por hacer">
-          <h2 className="section-label">
+          <Heading level={2} className="section-label">
             Por hacer <span className="count">{pending.length}</span>
-          </h2>
+          </Heading>
           <ul className="todo-list">{pending.map(renderTodo)}</ul>
         </section>
       )}
       {completed.length > 0 && (
         <section className="todo-group todo-group--done" aria-label="Hechas">
-          <h2 className="section-label">
+          <Heading level={2} className="section-label">
             Hechas <span className="count">{completed.length}</span>
-          </h2>
+          </Heading>
           <ul className="todo-list">{completed.map(renderTodo)}</ul>
         </section>
       )}

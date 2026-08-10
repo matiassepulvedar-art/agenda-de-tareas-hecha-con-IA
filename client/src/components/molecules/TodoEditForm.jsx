@@ -1,5 +1,6 @@
 import Input from '../atoms/Input'
 import Button from '../atoms/Button'
+import Label from '../atoms/Label'
 
 export default function TodoEditForm({
   title,
@@ -12,9 +13,9 @@ export default function TodoEditForm({
   return (
     <form onSubmit={onSubmit} className="edit-form">
       <div>
-        <label className="field-label" htmlFor="edit-title">
+        <Label className="field-label" htmlFor="edit-title">
           Tarea
-        </label>
+        </Label>
         <Input
           id="edit-title"
           className="field"
@@ -25,9 +26,9 @@ export default function TodoEditForm({
         />
       </div>
       <div>
-        <label className="field-label" htmlFor="edit-description">
+        <Label className="field-label" htmlFor="edit-description">
           Nota
-        </label>
+        </Label>
         <Input
           id="edit-description"
           className="field"
